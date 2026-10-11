@@ -1,9 +1,9 @@
-// реализовать отлов ошибок + паники
 // пофиксить пользовательский ввод для методов
 
 package main
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -28,17 +28,28 @@ func ShowTasks() {
 
 var Tasks = []Task{}
 
-func CompleteTask(t *Task) {
-	t.Completed = true
+func CompleteTask(t []Task, i int) error {
+	if i < 0 || i > len(t) {
+		return errors.New("Такой задачи нет!")
+	}
+	t[i].Completed = true
+	return nil
 }
 
-func DeleteTask(t []Task, i int) {
+func DeleteTask(t []Task, i int) error {
+	if i < 0 || i > len(t) {
+		return errors.New("Такой задачи нет!")
+	}
 	Tasks = append(Tasks[:i-1], Tasks[i:]...)
+	return nil
 }
 
 func main() {
 	defer func() {
-		fmt.Println("До свидания!")
+		p := recover()
+		if p != nil {
+			fmt.Println("Поймал панику:", p)
+		}
 	}()
 
 	for {
@@ -73,16 +84,27 @@ func main() {
 				var numb int
 				fmt.Print("Введи номер задачи: ")
 				fmt.Scan(&numb)
-				CompleteTask(&Tasks[numb-1])
+				comp := CompleteTask(Tasks, numb-1)
+				if comp != nil {
+					fmt.Println("Ошибка!", comp.Error())
+				} else {
+					fmt.Println("Задача выполнена!")
+				}
 			case 4:
 				var numb int
 				fmt.Print("Введи номер задачи для удаленя: ")
 				fmt.Scan(&numb)
-				DeleteTask(Tasks, numb)
+				del := DeleteTask(Tasks, numb)
+				if del != nil {
+					fmt.Println("Ошибка!", del.Error())
+				} else {
+					fmt.Println("Задача успешно удалена")
+				}
 			case 5:
+				fmt.Println("До свидания!")
 				return
 			default:
-				fmt.Println("Такой задачи нет")
+				fmt.Println("Такого действия нет")
 			}
 			break
 
