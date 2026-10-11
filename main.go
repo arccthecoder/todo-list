@@ -1,3 +1,6 @@
+// реализовать отлов ошибок + паники
+// пофиксить пользовательский ввод для методов
+
 package main
 
 import (
@@ -25,7 +28,7 @@ func ShowTasks() {
 
 var Tasks = []Task{}
 
-func CompleteTask(t *Task, i bool) {
+func CompleteTask(t *Task) {
 	t.Completed = true
 }
 
@@ -70,7 +73,7 @@ func main() {
 				var numb int
 				fmt.Print("Введи номер задачи: ")
 				fmt.Scan(&numb)
-				CompleteTask(&Tasks[numb-1], true)
+				CompleteTask(&Tasks[numb-1])
 			case 4:
 				var numb int
 				fmt.Print("Введи номер задачи для удаленя: ")
