@@ -3,8 +3,11 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
+	"os"
+	"strconv"
 )
 
 type Task struct {
@@ -52,6 +55,8 @@ func main() {
 		}
 	}()
 
+	scanner := bufio.NewScanner(os.Stdin)
+
 	for {
 		fmt.Println("=== To-Do List ===")
 		Empty()
@@ -63,16 +68,17 @@ func main() {
 
 		for {
 			var choose int
-			var vopros string
 			fmt.Print("Выберите действие: ")
 			fmt.Scan(&choose)
 
 			switch choose {
 			case 1:
 				fmt.Print("Введите задачу: ")
-				fmt.Scan(&vopros)
-				Tasks = append(Tasks, Task{Title: vopros})
-				fmt.Println("Задача успешно добавлена")
+				if scanner.Scan() {
+					input := scanner.Text()
+					Tasks = append(Tasks, Task{Title: input})
+					fmt.Println("Задача успешно добавлена")
+				}
 			case 2:
 				if len(Tasks) == 0 {
 					fmt.Println("Список задач пуст")
@@ -81,24 +87,35 @@ func main() {
 					ShowTasks()
 				}
 			case 3:
-				var numb int
 				fmt.Print("Введи номер задачи: ")
-				fmt.Scan(&numb)
-				comp := CompleteTask(Tasks, numb-1)
-				if comp != nil {
-					fmt.Println("Ошибка!", comp.Error())
-				} else {
-					fmt.Println("Задача выполнена!")
+				if scanner.Scan() {
+					input := scanner.Text()
+					num, _ := strconv.Atoi(input)
+					comp := CompleteTask(Tasks, num-1)
+					if comp != nil {
+						fmt.Println("Ошибка!", comp.Error())
+					} else {
+						fmt.Println("Задача выполнена!")
+					}
 				}
 			case 4:
-				var numb int
 				fmt.Print("Введи номер задачи для удаленя: ")
-				fmt.Scan(&numb)
-				del := DeleteTask(Tasks, numb)
-				if del != nil {
-					fmt.Println("Ошибка!", del.Error())
-				} else {
-					fmt.Println("Задача успешно удалена")
+				if scanner.Scan() {
+					input := scanner.Text()
+					num, err := strconv.Atoi(input)
+					if err != nil {
+						fmt.Println("Ошибка: введите корректный номер задачи")
+						continue
+					}
+					del := DeleteTask(Tasks, num)
+					if del != nil {
+						fmt.Println("Ошибка!", del.Error())
+					} else {
+						fmt.Println("Задача успешно удалена")
+					}
+				}
+				if err := scanner.Err(); err != nil {
+					fmt.Fprintln(os.Stderr, "Критическая ошибка сканера:", err)
 				}
 			case 5:
 				fmt.Println("До свидания!")
