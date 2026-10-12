@@ -1,2 +1,2 @@
 # todo-list
-Simple todo list built on Golang
+Simple todo list built on Golang **(WIP)**
