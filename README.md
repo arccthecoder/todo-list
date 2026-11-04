@@ -212,4 +212,6 @@ curl -i -X DELETE http://localhost:9091/tasks/Learn%20Go
 
 ## Лицензия
 
-Лицензия пока не указана.
+Проект распространяется под лицензией [MIT](LICENSE).
+
+Copyright (c) 2026 arccthecoder.
