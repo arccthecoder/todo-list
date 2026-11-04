@@ -53,6 +53,7 @@ func (h *HTTPHandlers) HandleCreateTask(w http.ResponseWriter, r *http.Request) 
 		}
 
 		http.Error(w, errDTO.ToString(), http.StatusBadRequest)
+		return
 	}
 
 	todoTask := todo.NewTask(taskDTO.Title, taskDTO.Description)
@@ -123,6 +124,7 @@ func (h *HTTPHandlers) HandleGetTask(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(b); err != nil {
 		fmt.Println("failed to write http response", err)
+		return
 	}
 
 }
@@ -141,7 +143,17 @@ failed:
   - response body: JSON with error + time
 */
 func (h *HTTPHandlers) HandleGetAllTasks(w http.ResponseWriter, r *http.Request) {
+	tasks := h.todoList.ListTasks()
+	b, err := json.MarshalIndent(tasks, "", "    ")
+	if err != nil {
+		panic(err)
+	}
 
+	w.WriteHeader(http.StatusOK)
+	if _, err := w.Write(b); err != nil {
+		fmt.Println("failed to write http response")
+		return
+	}
 }
 
 /*
@@ -158,7 +170,17 @@ failed:
   - response body: JSON with error + time
 */
 func (h *HTTPHandlers) HandleGetAllUncompletedTasks(w http.ResponseWriter, r *http.Request) {
+	uncompletedTask := h.todoList.ListUncompletedTasks()
+	b, err := json.MarshalIndent(uncompletedTask, "", "    ")
+	if err != nil {
+		panic(err)
+	}
 
+	w.WriteHeader(http.StatusOK)
+	if _, err := w.Write(b); err != nil {
+		fmt.Println("failed to write http response")
+		return
+	}
 }
 
 /*
@@ -175,7 +197,52 @@ failed:
   - response body: JSON with error + time
 */
 func (h *HTTPHandlers) HandleCompleteTask(w http.ResponseWriter, r *http.Request) {
+	var completeDTO CompleteTaskDTO
+	if err := json.NewDecoder(r.Body).Decode(&completeDTO); err != nil {
+		errDTO := ErrorDTO{
+			Message: err.Error(),
+			Time:    time.Now(),
+		}
 
+		http.Error(w, errDTO.ToString(), http.StatusBadRequest)
+		return
+	}
+
+	title := mux.Vars(r)["title"]
+
+	if completeDTO.Complete {
+		if _, err := h.todoList.CompleteTask(title); err != nil {
+			errDTO := ErrorDTO{
+				Message: err.Error(),
+				Time:    time.Now(),
+			}
+
+			if errors.Is(err, todo.ErrTaskNotFound) {
+				http.Error(w, errDTO.ToString(), http.StatusNotFound)
+				return
+			} else {
+				http.Error(w, errDTO.ToString(), http.StatusInternalServerError)
+			}
+
+			return
+		}
+	} else {
+		if _, err := h.todoList.UncompleteTask(title); err != nil {
+			errDTO := ErrorDTO{
+				Message: err.Error(),
+				Time:    time.Now(),
+			}
+
+			if errors.Is(err, todo.ErrTaskNotFound) {
+				http.Error(w, errDTO.ToString(), http.StatusNotFound)
+				return
+			} else {
+				http.Error(w, errDTO.ToString(), http.StatusInternalServerError)
+			}
+
+			return
+		}
+	}
 }
 
 /*
@@ -192,5 +259,21 @@ failed:
   - response body: JSON with error + time
 */
 func (h *HTTPHandlers) HandleDeleteTask(w http.ResponseWriter, r *http.Request) {
+	title := mux.Vars(r)["title"]
 
+	if err := h.todoList.DeleteTask(title); err != nil {
+		errDTO := ErrorDTO{
+			Message: err.Error(),
+			Time:    time.Now(),
+		}
+
+		if errors.Is(err, todo.ErrTaskNotFound) {
+			http.Error(w, errDTO.ToString(), http.StatusNotFound)
+			return
+		} else {
+			http.Error(w, errDTO.ToString(), http.StatusInternalServerError)
+		}
+
+		return
+	}
 }

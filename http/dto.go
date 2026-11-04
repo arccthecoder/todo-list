@@ -12,6 +12,15 @@ type TaskDTO struct {
 	Description string
 }
 
+type CompleteTaskDTO struct {
+	Complete bool
+}
+
+type ErrorDTO struct {
+	Message string
+	Time    time.Time
+}
+
 func (t TaskDTO) ValidateForCreate() error {
 	if t.Title == "" {
 		return errors.New("title is empty")
@@ -22,11 +31,6 @@ func (t TaskDTO) ValidateForCreate() error {
 	}
 
 	return nil
-}
-
-type ErrorDTO struct {
-	Message string
-	Time    time.Time
 }
 
 func (e ErrorDTO) ToString() string {
