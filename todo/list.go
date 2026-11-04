@@ -79,7 +79,7 @@ func (l *List) CompleteTask(title string) (Task, error) {
 
 	l.tasks[title] = task
 
-	return task, nil
+	return l.tasks[title], nil
 }
 
 func (l *List) UncompleteTask(title string) (Task, error) {
@@ -95,7 +95,7 @@ func (l *List) UncompleteTask(title string) (Task, error) {
 
 	l.tasks[title] = task
 
-	return task, nil
+	return l.tasks[title], nil
 }
 
 func (l *List) DeleteTask(title string) error {
