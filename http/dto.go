@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"errors"
 	"time"
 )
 
@@ -9,6 +10,18 @@ import (
 type TaskDTO struct {
 	Title       string
 	Description string
+}
+
+func (t TaskDTO) ValidateForCreate() error {
+	if t.Title == "" {
+		return errors.New("title is empty")
+	}
+
+	if t.Description == "" {
+		return errors.New("description is empty")
+	}
+
+	return nil
 }
 
 type ErrorDTO struct {
