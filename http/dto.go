@@ -1,3 +1,5 @@
+// DTO == data transfer object
+
 package http
 
 import (
@@ -6,7 +8,6 @@ import (
 	"time"
 )
 
-// DTO == data transfer object
 type TaskDTO struct {
 	Title       string
 	Description string
